@@ -1,0 +1,45 @@
+# --- offline ---
+python scraper.py --help
+python scraper.py --source doesnotexist            # clean error
+python scraper.py --source books --max-pages 0     # clean error
+
+# --- happy path ---
+python scraper.py --source books --max-pages 1     # 21 lines in books.csv
+python scraper.py --source books --max-pages 3     # 61 lines
+python scraper.py --source books --max-items 50    # 51 lines
+python scraper.py --source quotes                  # 101 lines in quotes.csv
+python scraper.py --source books --max-pages 1 --output custom_books.csv
+python scraper.py --source books --max-pages 1 --log-level WARNING
+
+# --- dedupe ---
+python - <<'PY'
+from exporter import export_csv
+print(export_csv([{"t":"A"},{"t":"A"},{"t":"B"}], ["t"], "/tmp/d.csv", "t"))
+PY
+
+# --- verify output ---
+head -c 3 books.csv | xxd          # efbb bf
+wc -l books.csv quotes.csv
+awk -F, 'NF!=4{print NR": "$0}' books.csv | head   # no output
+
+# --- retry/backoff (slow) ---
+cat > sources/retrytest.json <<'JSON'
+{"start_url":"https://httpstat.us/500","field_map":{"x":{"selector":"body"}},
+ "pagination":{"mode":"css_selector","selector":"li.next a"},
+ "limits":{"mode":"pages","max_pages":1,"max_items":null},
+ "output_file":"r.csv","request_timeout_seconds":5,"max_retries":3,"dedupe_key":"x"}
+JSON
+time python scraper.py --source retrytest
+rm sources/retrytest.json r.csv
+
+# --- url_pattern ---
+cat > sources/quotes_pattern.json <<'JSON'
+{"start_url":"https://quotes.toscrape.com/page/1/",
+ "field_map":{"text":{"selector":".quote .text"},"author":{"selector":".quote .author"}},
+ "pagination":{"mode":"url_pattern","base_url":"https://quotes.toscrape.com/page/{}/"},
+ "limits":{"mode":"pages","max_pages":3,"max_items":null},
+ "output_file":"qp.csv","request_timeout_seconds":15,"max_retries":3,"dedupe_key":"text"}
+JSON
+python scraper.py --source quotes_pattern
+wc -l qp.csv   # 31
+rm sources/quotes_pattern.json qp.csv

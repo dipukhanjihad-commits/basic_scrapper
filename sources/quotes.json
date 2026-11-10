@@ -1,0 +1,21 @@
+{
+  "start_url": "https://quotes.toscrape.com/page/1/",
+  "field_map": {
+    "text": {"selector": ".quote .text"},
+    "author": {"selector": ".quote .author"},
+    "tags": {"selector": ".quote .tags"}
+  },
+  "pagination": {
+    "mode": "css_selector",
+    "selector": "li.next a"
+  },
+  "limits": {
+    "mode": "all",
+    "max_pages": null,
+    "max_items": null
+  },
+  "output_file": "quotes.csv",
+  "request_timeout_seconds": 15,
+  "max_retries": 3,
+  "dedupe_key": "text"
+}
