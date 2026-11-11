@@ -6,7 +6,6 @@ sources ship in the box: `books` and `quotes`.
 
 ## Quick start
 
-```bash
 pip install -r requirements.txt
 
 python scraper.py --source books
@@ -140,14 +139,14 @@ No code changes required.
 ## Notes on running
 
 - Both demo URLs are public, static, and scrape-friendly — no auth, no JS, no anti-bot in the path.
-- Sample first-run output for `--source books --max-pages 1`:
+- Sample first-run output for --source books --max-pages 1:
 2024-01-01 12:00:00 [INFO] Starting crawl: source=books start_url=https://books.toscrape.com/catalogue/page-1.html
 2024-01-01 12:00:01 [INFO] Fetched page 1: 20 items
 2024-01-01 12:00:01 [INFO] Wrote 20 rows to books.csv (0 duplicates removed)
 2024-01-01 12:00:01 [INFO] Summary: pages_fetched=1 items_collected=20 items_written=20 items_skipped=0 duplicates_removed=0 elapsed_seconds=0.842
 
 
-- A bad config file fails before any network call, with a `ValueError` that names the offending path (e.g. `Config 'books'.pagination.mode: must be one of ('css_selector', 'url_pattern'), got 'magic'`).
+- A bad config file fails before any network call, with a ValueError that names the offending path (e.g. Config 'books'.pagination.mode: must be one of ('css_selector', 'url_pattern'), got 'magic'`).
 - The `rating` field on books intentionally captures the full class string (`"star-rating Three"`) because the schema's `"attr": "class"` semantics are literal. Filtering out the `star-rating` prefix is a value-transform concern — deliberately out of scope for now (see the future-extensions list).
 
 
